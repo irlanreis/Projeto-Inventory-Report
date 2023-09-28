@@ -69,6 +69,6 @@ def test_report_final() -> None:
     # raise a typing error, returning an error code.
     # TODO: Test with inspect instead of mypy
     _stdout, _stderr, exit_code = mypy_api.run([__file__])
-    assert not exit_code
+    assert not exit_code, "Garanta que a classe Report seja um protocolo"
 
     remove_mypy_cache()
