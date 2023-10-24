@@ -5,20 +5,20 @@ from datetime import date, datetime
 
 class SimpleReport(Report):
     def __init__(self) -> None:
-        self.inventory: list[Inventory]
+        self.inventory: list[Inventory] = []
 
     def add_inventory(self, inventory: Inventory) -> None:
         self.inventory.append(inventory)
 
     def generate(self) -> str:
-        data_curr = self.inventory
-        oldest_making = self.oldest_making_date(data_curr)
-        shutest = self.shutest_expiration_date(data_curr)
-        larget = self.largest_inventory(data_curr)
+        data = self.inventory
+        oldest = self.oldest_making_date(data)
+        closest = self.shutest_expiration_date(data)
+        larget = self.largest_inventory(data)
 
         return (
-            f"Oldest manufacturing date: {oldest_making} "
-            f"Closest expiration date: {shutest} "
+            f"Oldest manufacturing date: {oldest} "
+            f"Closest expiration date: {closest} "
             f"Company with the largest inventory: {larget}"
         )
 
@@ -27,9 +27,7 @@ class SimpleReport(Report):
 
         for inventory in data:
             products = inventory.data
-            oldest = min(
-                item.manufacturing_date for item in products
-            )
+            oldest = min(item.manufacturing_date for item in products)
 
             if datetime.strptime(oldest, "%Y-%m-%d").date() < oldest_data:
                 oldest_data = datetime.strptime(oldest, "%Y-%m-%d").date()
@@ -38,30 +36,30 @@ class SimpleReport(Report):
 
     def shutest_expiration_date(self, data: list[Inventory]) -> str:
         today = date.today()
-        shutest_date = datetime.strptime("2500-01-01", "%Y-%m-%d").date()
+        closest_data = datetime.strptime("2500-01-01", "%Y-%m-%d").date()
 
         for inventory in data:
-            products_inventory = inventory.data
-            shutest = min(
+            products = inventory.data
+            closest = min(
                 item.expiration_date
-                for item in products_inventory
+                for item in products
                 if datetime.strptime(item.expiration_date, "%Y-%m-%d").date()
                 > today
             )
 
-            if datetime.strptime(shutest, "%Y-%m-%d").date() < shutest_date:
-                shutest_date = datetime.strptime(shutest, "%Y-%m-%d").date()
+            if datetime.strptime(closest, "%Y-%m-%d").date() < closest_data:
+                closest_data = datetime.strptime(closest, "%Y-%m-%d").date()
 
-        return str(shutest_date)
+        return str(closest_data)
 
     def largest_inventory(self, data: list[Inventory]) -> str:
         companies: dict[str, int] = {}
 
         for inventory in data:
-            for i in inventory.data:
-                if not companies.get(i.company_name):
-                    companies[i.company_name] = 1
+            for item in inventory.data:
+                if not companies.get(item.company_name):
+                    companies[item.company_name] = 1
                 else:
-                    companies[i.company_name] += 1
+                    companies[item.company_name] += 1
 
-        return max(companies, key=lambda i: companies[i])
+        return max(companies, key=lambda item: companies[item])
